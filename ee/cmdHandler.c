@@ -104,10 +104,12 @@ makeArgs(int cmdargc, char *cmdargv, struct argData *arg_data)
         cmdargc = MAX_ARGS;
     cmdargv[PKO_MAX_PATH-1] = '\0';
 
+	printf("Aqui llego picha\n");
+	printf("makeArgs	10\n");
     memcpy(argvStrings, cmdargv, PKO_MAX_PATH);
 
-    dbgprintf("cmd->argc %d, argv[0]: %s\n", cmdargc, cmdargv);
-
+    dbgprintf("cmd->argc %d, argv: %s\n", cmdargc, cmdargv);
+	printf("makeArgs	20\n");
     i = 0;
     t = 0;
     do {
@@ -120,6 +122,32 @@ makeArgs(int cmdargc, char *cmdargv, struct argData *arg_data)
     } while ((i < cmdargc) && (t < PKO_MAX_PATH));
 
     arg_data->argc = i;
+	printf("makeArgs	50\n");
+    return 0;
+}
+
+static int parse_argvs(int cmdargc, char *cmdargv, char *execpath, struct argData *arg_data)
+{
+    int i = 0;
+	char *separator = " ";
+    char *p = strtok(cmdargv, separator);
+
+	printf("Arguments %i\n", cmdargc);
+	
+    while (p != NULL)
+    {
+		if (i == 0) {
+			strcpy(execpath, p);
+		} else {
+			arg_data->argv[i-1] = p;
+			arg_data->argc = i;
+		}
+		i++;
+        p = strtok (NULL, separator);
+    }
+
+    for (i = 0; i < arg_data->argc; ++i) 
+        printf("%s\n", arg_data->argv[i]);
 
     return 0;
 }
@@ -180,9 +208,10 @@ pkoExecEE(pko_pkt_execee_req *cmd)
     if (userThreadID) {
         return -1;
     }
-
+	printf("pkoExecEE	0\n");
     dbgprintf("EE: Executing file %s...\n", cmd->argv);
-    memcpy(path, cmd->argv, PKO_MAX_PATH);
+    parse_argvs(ntohl(cmd->argc), cmd->argv, path, &userArgs);
+	printf("pkoExecEE	10\n");
 
     scr_printf("Executing file %s...\n", path);
 
@@ -196,8 +225,6 @@ pkoExecEE(pko_pkt_execee_req *cmd)
     FlushCache(2);
 
     userThreadID = pid;
-
-    makeArgs(ntohl(cmd->argc), path, &userArgs);
 
     // Hack away..
     userArgs.flag = (int)&userThreadID;

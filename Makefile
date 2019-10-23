@@ -1,7 +1,7 @@
 # Compilation variables
 
 # Set this to 1 to enable debug mode
-DEBUG = 0
+DEBUG = 1
 
 # Set this to 1 to build a highloading version, 0 for normal low version
 LOADHIGH = 0
