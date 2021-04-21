@@ -56,6 +56,7 @@ pkoDebug(int cause, int badvaddr, int status, int epc, eeReg *regs)
 {
     int i;
     int code;
+    unsigned long stack_base;
     //    extern void printf(char *, ...);
     static void (* excpPrintf)(const char *, ...);
 
@@ -90,6 +91,20 @@ pkoDebug(int cause, int badvaddr, int status, int epc, eeReg *regs)
                    regName[i+16], regs[i+16].uint64[1], regs[i+16].uint64[0]);
     }
     excpPrintf("\n");
+
+    // Attempt to print the user stack, if SP is in some reasonable area
+    stack_base = regs[29].uint64[0];
+    stack_base &= ~3ULL;
+    for (i = 0; i < 32*10; i+= 32) {
+        unsigned long addr = stack_base + i;
+        unsigned int *ptr32 = (unsigned int*)addr;
+        if (addr >= 0 && (addr + 32) < 0x2000000) {
+            excpPrintf("%08x %08x %08x %08x %08x %08x %08x %08x\n",
+                       ptr32[0], ptr32[1], ptr32[2], ptr32[2],
+                       ptr32[4], ptr32[5], ptr32[6], ptr32[7]);
+        }
+    }
+
     SleepThread();
 }
 
