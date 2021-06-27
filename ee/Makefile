@@ -29,12 +29,7 @@ endif
 APP_VERSION := $(shell git describe --tags --abbrev=0)
 EE_CFLAGS += -DAPP_VERSION=\"$(APP_VERSION)\"
 
-# Link with following libraries.  This is a special case, and instead of
-# allowing the user to override the library order, we always make sure
-# libkernel is the last library to be linked.
-EE_LIBS += -lc_nano -lkernel-nopatch
-# KERNEL_NOPATCH = 1
-# NEWLIB_NANO = 1
+NEWLIB_NANO = 1
 
 # Use custom linkfile
 EE_LINKFILE = linkfile
