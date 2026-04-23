@@ -24,6 +24,13 @@ IRX_ID(MODNAME, 1, 8);
 ////////////////////////////////////////////////////////////////////////
 // main
 //   start threads & init rpc & filesys
+//
+// NOTE: ps2link must be loaded BEFORE udptty in the EE loading
+// sequence.  After udptty hooks printf, the IOP module loader's
+// internal printf calls go through lwip_sendto, which crashes on
+// real hardware (alignment / timing issue in the TX path with
+// lwIP 2.2.1 on IOP).  Loading ps2link first avoids this.
+////////////////////////////////////////////////////////////////////////
 int _start(int argc, char **argv)
 {
     FlushDcache();

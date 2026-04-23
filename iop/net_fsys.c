@@ -63,7 +63,7 @@ static void fsysInit(iop_device_t *driver)
     mythread.attr = 0x02000000;              // attr
     mythread.option = 0;                     // option
     mythread.thread = (void *)pko_file_serv; // entry
-    mythread.stacksize = 0x800;
+    mythread.stacksize = 0x2000; /* was 0x800: lwIP 2.2.1 has deeper call chains; SMAP IRQs can add ~300 bytes of interrupt context on top of active stack frames, so extra room is needed */
     mythread.priority = 9; // We really should choose prio w more effort
 
     pid = CreateThread(&mythread);
