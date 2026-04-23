@@ -22,12 +22,21 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
-          apk add build-base git
+          apk add build-base git bash
 
       - uses: actions/checkout@v4
+
+      - name: Rebuild ps2sdk from upgrade_lwip branch
+        run: |
+          git clone --depth 1 --branch upgrade_lwip https://github.com/fjtrujy/ps2sdk.git
+          cd ps2sdk
+          make -j $(getconf _NPROCESSORS_ONLN)
+          make -j $(getconf _NPROCESSORS_ONLN) install
+          echo "ps2sdk rebuild complete — installed at $PS2SDK"
+
       - name: Compile project
         run: |
-          make -j $(getconf _NPROCESSORS_ONLN) clean 
+          make -j $(getconf _NPROCESSORS_ONLN) clean
           make -j $(getconf _NPROCESSORS_ONLN) LOADHIGH=${{ matrix.version[1] }}
 
       - name: Get short SHA
